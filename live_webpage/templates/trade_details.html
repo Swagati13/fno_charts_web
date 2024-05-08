@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kite Trade Details</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body {
+            margin: 0px;
+        }
+    
+        .navbar {
+            background-color: DarkSlateGrey;
+            display: flex;
+            justify-content: flex-end;
+            border-radius: 5px;
+            overflow: hidden;
+            position: sticky; /* Make the navbar sticky */
+            top: 0; /* Position it at the top of the viewport */
+            z-index: 1000; /* Ensure it stays above other content */
+        }
+    
+        .navbar a {
+            color: #fff;
+            text-decoration: none;
+            padding: 20px 20px;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+    
+        .navbar a:hover {
+            background-color: #555;
+        }
+    
+        .heading {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin-right: auto;
+            margin-left: 20px;
+        }
+    
+        .navbar a.active {
+            background-color: #4caf50;
+        }
+    
+        .table-container {
+            max-height: 830px; 
+            overflow-y: auto; 
+        }
+    
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+    
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+    
+        th:first-child,
+        td:first-child {
+            position: sticky;
+            left: 0;
+            background-color: LightGrey;
+            z-index: 2;
+        }
+    
+        th {
+            background-color: LightGrey;
+            z-index: 2;
+        }
+    
+        thead th:first-child {
+            position: sticky;
+            top: 0;
+        }
+        tbody tr:hover {
+            background-color:LightGrey;
+            cursor: pointer;
+        }
+    
+        @media screen and (max-width: 600px) {
+            .navbar {
+                flex-direction: column;
+            }
+    
+            .navbar a {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <h2 class="heading">Kite Trade Details</h2>
+    <a href="/">Positions</a>
+    <a href="/s">Strategies List</a>
+    <a href="/t">Trade Details</a>
+</div>
+<div class="table-container" id="data-container">
+    <table>
+        <thead>
+        <tr>
+            {% for column in columns %}
+            <th>{{ column }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in data %}
+        <tr>
+            {% for cell in row %}
+            <td>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function updateData() {
+        $.get('/get_trade_details', function(data) {
+            $('#data-container').html(data);
+        });
+    }
+
+    setInterval(updateData, 1000);
+</script>
+</body>
+</html>
