@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategy Stats</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            color:white;
+            background-color:black;
+        }
+        
+        .container {
+            max-width: 2500px; 
+            margin: 0 auto;
+            padding: 0px;
+        }
+        
+        .section {
+            padding: 0px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 0px;
+        }
+        
+        .input-section {
+            float: left;
+            width: 30%; 
+            box-sizing: border-box;
+            padding-left:40px;
+            padding-right: 40px;
+            background-color:black;
+            height:390px;
+            border: 1px solid yellow;
+        }
+        
+        .output-details {
+            padding-left:30px;
+            float: left;
+            width: 70%; 
+            box-sizing: border-box;
+            background-color:black;
+            height:390px;
+            margin-top:0px;
+            border: 1px solid red;
+            color:white;
+        }
+        
+        .input-section form {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 5px;
+        }
+        
+        .input-section label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        
+        .input-section input[type="submit"] {
+            width: 80%;
+            margin-top: 20px;
+            padding:10px;
+            margin-left:150px;
+            background-color:DarkGray;
+            border: 3px solid DarkGray;
+            color: white;
+        }
+
+        .input-section input[type="submit"]:hover{
+            background-color:LightSlateGrey;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            grid-gap: 10px;
+            padding: 5px;
+            padding-right:20px;
+        }
+        
+        .info-box {
+            width: 200px; 
+            height: 130px;
+            border: 3px solid DarkGray;
+            border-radius: 5px;
+            padding: 0px;
+            background-color: #f9f9f9; 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 0px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-box-label, .info-box-value {
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            flex: 1; 
+    
+        }
+        .info-box-label {
+            flex: 1; 
+            border: 1px solid green;
+            padding-bottom: 5px;
+            background-color:Gray ; 
+            color :white;
+
+        }
+        
+        .info-box-value {
+            flex: 1;
+            border-top: 1px solid #ccc;
+            padding-top: 5px;
+            background-color: #f0f0f0;
+            color:black; 
+        }
+        
+        .trades {
+            clear: both;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: black;
+            /*overflow: hidden;*/
+        }
+        
+        .table-container {
+            /*overflow-y: auto; */
+            max-height: 390px; 
+        }
+        
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #ccc;
+        }
+        
+        .table-container th, .table-container td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        
+        .table-container th {
+            background-color: #f0f0f0;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            color:black;
+        }
+        
+        .table-container tr:hover {
+            background-color: #f0f0f0;
+            color:black;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.3);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            color:black;
+        }
+
+        .loading-message {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+        }
+
+        .loader {
+            border: 8px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 8px solid #3498db;
+            width: 50px;
+            height: 50px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+            display: none; 
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+            
+        .navbar {
+            overflow: hidden;
+            background-color:darkSlateGrey;
+        }
+
+        .navbar a {
+            float: right;
+            display: block;
+            color:white;
+            text-align: center;
+            padding: 20px 30px;
+            text-decoration: none;
+        }
+        .navbar h1 {
+            float: left;
+            margin:10px;
+            margin-left:40px;
+        }
+
+        .navbar a:hover {
+            background-color: snow;
+            color: black;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>Backtest</h1>
+        <a class="#home">Home</a>
+        <a href="#tools">Tools</a>
+        <a href="#contact">Contact</a>
+        <a href="#about">About</a>
+    </div>
+    <div class="container">
+        <div class="section input-section">
+            <h1>Enter Strategy Stats Parameters</h1>
+            <form id="strategyForm" method="POST">
+                <label for="folderSelect">Select Index:</label>
+                <select id="folderSelect" name="folderSelect">
+                    <option value="bnf" {% if input_details.selected_index == 'bnf' %} selected {% endif %}>BankNifty</option>
+                    <option value="finnifty" {% if input_details.selected_index == 'finnifty' %} selected {% endif %}>Finnifty</option>
+                    <option value="nifty" {% if input_details.selected_index == 'nifty' %} selected {% endif %}>Nifty</option>
+                    <option value="sensex" {% if input_details.selected_index == 'sensex' %} selected {% endif %}>Sensex</option>
+                    <option value="bankex" {% if input_details.selected_index == 'bankex' %} selected {% endif %}>Bankex</option>
+                    <option value="midcpnifty" {% if input_details.selected_index == 'midcpnifty' %} selected {% endif %}>Midcap Nifty</option>
+                </select>
+                <label for="folderDTE">Select Dates:</label>
+                <select id="folderDTE" name="folderDTE">
+                    <option value="0DTE" {% if input_details.selected_DTE == '0DTE' %} selected {% endif %}>0 DTE</option>
+                    <option value="1DTE" {% if input_details.selected_DTE == '1DTE' %} selected {% endif %}>1 DTE</option>
+                    <option value="2DTE" {% if input_details.selected_DTE == '2DTE' %} selected {% endif %}>2 DTE</option>
+                    <option value="3DTE" {% if input_details.selected_DTE == '3DTE' %} selected {% endif %}>3 DTE</option>
+                    <option value="4DTE" {% if input_details.selected_DTE == '4DTE' %} selected {% endif %}>4 DTE</option>
+                    <option value="ALLDATES" {% if input_details.selected_DTE == 'ALLDATES' %} selected {% endif %}>ALL DATES</option>
+                </select>
+                <label for="start_time">Start Time (HH:MM:SS):</label>
+                <input type="time" id="start_time" name="start_time" step="1" value="{{ input_details.start_time }}" required>
+                <label for="end_time">End Time (HH:MM:SS):</label>
+                <input type="time" id="end_time" name="end_time" step="1" value="{{ input_details.end_time }}" required>
+                <label for="strike_distance">Strike Distance:</label>
+                <input type="number" id="strike_distance" name="strike_distance" value="{{ input_details.strike_distance }}" required>
+                <label for="sl_percent">SL Percent:</label>
+                <input type="number" id="sl_percent" name="sl_percent" step="any" value="{{ input_details.sl_percent }}" required>
+                <label for="max_loss_points">Max Loss Points:</label>
+                <input type="number" id="max_loss_points" name="max_loss_points" value="{{ input_details.max_loss_points }}" required>
+                <label for="target_points">Target Points:</label>
+                <input type="number" id="target_points" name="target_points" value="{{ input_details.target_points }}">
+                <input type="submit" value="Submit">
+            </form>
+        </div>
+
+        <div class="section output-section">
+            <div class="output-details">
+                <h1>Output Details</h1>
+                <div class="info-grid">
+                    <div class="info-box">
+                        <div class="info-box-label">
+                            <label>Average PNL per Trade:</label>
+                        </div>
+                        <div class="info-box-value">
+                            <span>{{ '%.2f' % results.avg_pnl_per_trade if results else ' ' }}</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-box-label">
+                            <label>Max Profit:</label>
+                        </div>
+                        <div class="info-box-value">
+                            <span>{{ '%.2f' % results.max_profit if results else ' ' }}</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-box-label">
+                            <label>Max Loss:</label>
+                        </div>
+                        <div class="info-box-value">
+                            <span>{{ '%.2f' % results.max_loss if results else ' ' }}</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-box-label">
+                            <label>Max Drawdown:</label>
+                        </div>
+                        <div class="info-box-value">
+                            <span>{{ '%.2f' % results.max_drawdown if results else ' ' }}</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-box-label">
+                            <label>Average Profit on Winning Trades:</label>
+                        </div>
+                        <div class="info-box-value">
+                            <span>{{ '%.2f' % results.avg_profit_on_winning_trades if results else ' ' }}</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-box-label">
+                            <label>Average Loss on Losing Trades:</label>
+                        </div>
+                        <div class="info-box-value">
+                            <span>{{ '%.2f' % results.avg_loss_on_losing_trades if results else ' ' }}</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-box-label">
+                            <label>Expectancy:</label>
+                        </div>
+                        <div class="info-box-value">
+                            <span>{{ '%.2f' % results.expectancy if results else ' ' }}</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-box-label">
+                            <label>  Longest Drawdown Duration:</label>
+                        </div>
+                        <div class="info-box-value">
+                            <span>{{ results.longest_drawdown_duration if results else ' ' }}</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-box-label">
+                            <label>Win Percent:</label>
+                        </div>
+                        <div class="info-box-value">
+                            <span>{{ '%.2f' % results.win_percent if results else ' ' }}</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-box-label">
+                            <label>Max Winning Streak:</label>
+                        </div>
+                        <div class="info-box-value">
+                            <span>{{ results.max_winning_streak if results else ' ' }}</span>
+                        </div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-box-label">
+                            <label>Max Losing Streak:</label>
+                        </div>
+                        <div class="info-box-value">
+                            <span>{{ results.max_losing_streak if results else ' ' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="trades">
+                <h1>Trades</h1>
+                <div class="table-container">
+                    {% if trades is defined and trades is not none and not trades.empty %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Entry Time</th>
+                                <th>Strike</th>
+                                <th>Type</th>
+                                <th>Sell Price</th>
+                                <th>Buy Price</th>
+                                <th>Exit Time</th>
+                                <th>PnL</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for index, row in trades.iterrows() %}
+                            <tr>
+                                <td>{{ row['date'] }}</td>
+                                <td>{{ row['entry_time'] }}</td>
+                                <td>{{ row['strike'] }}</td>
+                                <td>{{ row['ce'] }}</td>
+                                <td>{{ row['sell_price'] }}</td>
+                                <td>{{ row['buy_price'] }}</td>
+                                <td>{{ row['exit_time'] }}</td>
+                                <td>{{ row['pnl'] }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% endif %}
+                </div>
+            </div>
+            
+        </div>
+        <div class="loading-overlay">
+            <div class="loader"></div>
+        </div>
+    </div>
+    <script>
+        function showLoading() {
+            document.querySelector('.loading-overlay').style.display = 'flex';
+            document.querySelector('.loader').style.display = 'block';
+        }
+        function hideLoading() {
+            document.querySelector('.loading-overlay').style.display = 'none';
+            document.querySelector('.loader').style.display = 'none';
+        }
+        function updateOutput(data) {
+            document.querySelector('.output-details').innerHTML = data;
+            document.querySelector('.output-section').style.display = 'block'; 
+        }
+        document.getElementById('strategyForm').addEventListener('submit', function(event) {
+            var startTime = performance.now();
+            showLoading();
+    
+            setTimeout(function() {
+                var data = `
+                    <!-- Your output details and trades table here -->
+                `;
+                updateOutput(data);
+    
+                var endTime = performance.now();
+                var actualTime = endTime - startTime;
+    
+                setTimeout(function() {
+                    hideLoading();
+                }, actualTime);
+            }, processingTime); 
+        });
+    </script>
+    
+    
+</body>
+</html>
